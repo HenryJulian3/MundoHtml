@@ -1,0 +1,47 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Hacer checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar la clave SSH para conectar con las EC2
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          # Agregar las direcciones IP de las instancias EC2
+          ssh-keyscan -H 54.173.37.76 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 54.86.84.182 >> ~/.ssh/known_hosts
+
+      # Paso 3: Desplegar los archivos en la primera instancia EC2
+      - name: Deploy to Instance 1
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@54.173.37.76 << 'EOF'
+            cd /home/ec2-user/MundoHtml || git clone https://github.com/HenryJulian3/MundoHtml.git
+            cd MundoHtml
+            git pull origin main  # Actualizar los archivos del repositorio
+            sudo cp index.html /var/www/html/  # Copiar index.html al directorio de Nginx
+            sudo systemctl restart nginx  # Reiniciar Nginx
+          EOF
+
+      # Paso 4: Desplegar los archivos en la segunda instancia EC2
+      - name: Deploy to Instance 2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@54.86.84.182 << 'EOF'
+            cd /home/ec2-user/MundoHtml || git clone https://github.com/HenryJulian3/MundoHtml.git
+            cd MundoHtml
+            git pull origin main  # Actualizar los archivos del repositorio
+            sudo cp index.html /var/www/html/  # Copiar index.html al directorio de Nginx
+            sudo systemctl restart nginx  # Reiniciar Nginx
+          EOF
