@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hola Mundo</title>
+    <title>Hostname</title>
 </head>
 <body>
-    <h1>Hola Mundo</h1>
-    <p id="instance-ip">Cargando la IP de la instancia...</p>
-
-    <script>
-        // Realiza una solicitud a la metadata de la instancia
-        fetch('http://169.254.169.254/latest/meta-data/public-ipv4')
-            .then(response => response.text())
-            .then(ip => {
-                document.getElementById('instance-ip').innerText = `IP de esta instancia: ${ip}`;
-            })
-            .catch(err => {
-                console.error('Error obteniendo la IP:', err);
-                document.getElementById('instance-ip').innerText = 'No se pudo cargar la IP.';
-            });
-    </script>
+    <p id="hostname">Loading...</p>
+    <script src="script.js"></script>
 </body>
 </html>
